@@ -1,0 +1,12 @@
+install dependencies:
+  stage: install-dependencies
+  image: node:16.14.0-alpine3.15
+  rules:
+    - if: '$GITLAB_USER_LOGIN != $GIT_USERNAME_ACCESS'
+  script:
+    - npm install
+  artifacts:
+    untracked: false
+    expire_in: 30 mins
+    paths:
+      - node_modules/

@@ -1,0 +1,11 @@
+.aws_connexion:
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk add --update --no-cache jq py-pip
+    - pip install awscli
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set region $AWS_DEFAULT_REGION
+    - $(aws ecr get-login --no-include-email --region "${AWS_DEFAULT_REGION}")

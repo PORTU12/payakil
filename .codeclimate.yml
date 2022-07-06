@@ -1,0 +1,13 @@
+version: "2"
+plugins:
+  eslint:
+    enabled: true
+  tslint:
+    enabled: true
+    config: tslint.json
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - typescript:
+      - javascript:

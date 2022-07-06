@@ -1,0 +1,5 @@
+code_quality:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  artifacts:
+    paths: [gl-code-quality-report.json]

@@ -1,0 +1,43 @@
+.release_tag_template: &release_tag
+    stage: release tag
+    image: node:16.14.0-alpine3.15
+    before_script:
+        - apk add --no-cache bash git
+        - git config --global user.email $GIT_EMAIL_ACCESS
+        - git config --global user.name $GIT_USERNAME_ACCESS
+
+integration release tag:
+    <<: *release_tag
+    rules:
+        - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+    script:
+        - npm run release -- --no-verify --verbose --prerelease integration-${CI_PIPELINE_IID}
+        - echo "RELEASE_TAG_INTEGRATION=$(git describe HEAD --abbrev=0)" >> variables.env
+        - export "RELEASE_TAG_INTEGRATION=$(git describe HEAD --abbrev=0)"
+        - git push --force $GITLAB_REPOSITORY_URL $RELEASE_TAG_INTEGRATION
+    dependencies:
+      - install dependencies
+      - unit test of integration release
+    artifacts:
+        reports:
+            dotenv: variables.env
+
+official release tag:
+    <<: *release_tag
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+          changes:
+           - "package*.json"
+           - "*.md"
+          when: never
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    script:
+        - npm run release
+        - echo "RELEASE_TAG=$(git describe HEAD --abbrev=0)" >> variables.env
+        - git push --force --follow-tags $GITLAB_REPOSITORY_URL HEAD:main
+    dependencies:
+      - install dependencies
+      - unit test of official release
+    artifacts:
+        reports:
+            dotenv: variables.env

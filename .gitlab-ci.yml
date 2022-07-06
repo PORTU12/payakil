@@ -1,0 +1,30 @@
+stages:
+  - install-dependencies
+  - unit test
+  - release tag
+  - build
+  - test
+  - release
+  - deploy
+  - security-tests
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules
+
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
+  - local: .gitlab/template/*.gitlab-ci.yml
+  - local: .gitlab/ci/*.gitlab-ci.yml
+  
+variables:
+    
+  GITLAB_REPOSITORY_URL: https://gitlab-ci-token:${GL_ACCESS_TOKEN}@gitlab.com/akiltech/akil-pay.git

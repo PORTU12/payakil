@@ -1,0 +1,23 @@
+.test_template: &unit_test
+  stage: unit test
+  image: node:16.14.0-alpine3.15
+
+unit test of integration release:
+  <<: *unit_test
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+  script:
+    - npm run lint
+    - npm run test
+  dependencies:
+    - install dependencies
+
+unit test of official release:
+  <<: *unit_test
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $GITLAB_USER_LOGIN != $GIT_USERNAME_ACCESS'
+  script:
+    - npm run lint
+    - npm run test
+  dependencies:
+    - install dependencies

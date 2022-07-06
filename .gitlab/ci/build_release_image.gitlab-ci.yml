@@ -1,0 +1,49 @@
+.build_image_template: &build_image
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - apk add --update --no-cache jq
+
+.build integration release:
+  <<: *build_image
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+  script:
+    - tmp=$(mktemp)
+    - jq --arg a "${RELEASE_TAG_INTEGRATION}" '.version = $a' package.json > "$tmp" && mv "$tmp" package.json
+    - >
+      docker build
+      -t $REPOSITORY_URL:$RELEASE_TAG_INTEGRATION
+      .
+    - docker save $REPOSITORY_URL:$RELEASE_TAG_INTEGRATION > digit-expert-api.tar
+  artifacts:
+    paths:
+      - digit-expert-api.tar
+    untracked: false
+    expire_in: 30 min
+  needs:
+    - job: integration release tag
+      artifacts: true
+
+.build official release:
+  <<: *build_image
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  script:
+    - tmp=$(mktemp)
+    - jq --arg a "${RELEASE_TAG}" '.version = $a' package.json > "$tmp" && mv "$tmp" package.json
+    - >
+      docker build
+      -t $REPOSITORY_URL:$RELEASE_TAG
+      .
+    - docker save $REPOSITORY_URL:$RELEASE_TAG > digit-expert-api.tar
+  artifacts:
+    paths:
+      - digit-expert-api.tar
+    untracked: false
+    expire_in: 30 min
+  needs:
+    - job: official release tag
+      artifacts: true

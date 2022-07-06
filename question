@@ -1,0 +1,11 @@
+Why const version ?
+Why import * as "fr" ?
+An error in "mail module" root
+Why _mock_ ?
+Why cashin, cashout, getbalance, getinfo
+ 
+
+orm = object relational mapping logique d'objets pour faire des tables à l'intérieur d'1e bd
+use orienté objet pour manipuler une bd relationnelle
+manipuler des bd sql 
+les bd sql fonctionnent sur un modèle de table et record
